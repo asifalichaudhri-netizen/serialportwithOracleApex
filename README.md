@@ -48,12 +48,12 @@ Read weight data from the serial port.
 Insert the data into kl_serial_data_log.
 Log events to C:\Logs\SerialPortReader.log.
 
-## Hosting
+Hosting
 This application runs on the user’s computer and listens on the local IP address.
 Ensure firewall rules allow TCP connections on port 12345.
 Oracle APEX can query the kl_serial_data_log table to display real‑time weight data in dashboards or forms.
 
-## Business Impact
+Business Impact
 Eliminates manual weight entry.
 Improves accuracy in inventory and dispatch workflows.
 Demonstrates Oracle APEX integration with external IoT devices.
