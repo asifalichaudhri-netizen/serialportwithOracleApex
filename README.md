@@ -11,4 +11,8 @@ terminal_ip varchar2(30))
 
 Add **Oracle.ManagedDataAccess** Package to you solution.
 
+and build this application ,
+this application hosted on your user computer on local ip address.
+
+
 
