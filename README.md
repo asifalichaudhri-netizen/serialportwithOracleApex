@@ -29,6 +29,75 @@ CREATE TABLE kl_serial_data_log (
     terminal_ip  VARCHAR2(30)
 );
 
+Create ACL
+DECLARE
+v_principal VARCHAR2(20) DEFAULT 'APPS';
+v_host VARCHAR2(200) DEFAULT '192.168.0.50';
+acl_file VARCHAR2(200) DEFAULT 'JS_EMAIL.xml';
+BEGIN
+-- Check if ACL exists and drop it if needed
+BEGIN
+DBMS_NETWORK_ACL_ADMIN.DROP_ACL(acl => acl_file);
+EXCEPTION
+WHEN OTHERS THEN
+NULL; -- Ignore errors if ACL doesn't exist
+END;
+
+-- Create ACL
+DBMS_NETWORK_ACL_ADMIN.CREATE_ACL(
+acl => acl_file,
+description => 'JS_EMAIL',
+principal => v_principal,
+is_grant => TRUE,
+privilege => 'connect');
+
+DBMS_NETWORK_ACL_ADMIN.ADD_PRIVILEGE(
+acl => acl_file,
+principal => v_principal,
+is_grant => TRUE,
+privilege => 'resolve',
+start_date => NULL,
+end_date => NULL
+);
+
+-- Specify the port range (or set to NULL for any port)
+DBMS_NETWORK_ACL_ADMIN.ASSIGN_ACL(
+acl => acl_file,
+host => v_host,
+lower_port => NULL,
+upper_port => NULL
+);
+
+COMMIT;
+END;
+/
+
+
+SELECT PRINCIPAL, HOST, lower_port, upper_port, acl, 'connect' AS PRIVILEGE,
+DECODE(DBMS_NETWORK_ACL_ADMIN.CHECK_PRIVILEGE_ACLID(aclid, PRINCIPAL, 'connect'), 1,'GRANTED', 0,'DENIED', NULL) PRIVILEGE_STATUS
+FROM DBA_NETWORK_ACLS
+JOIN DBA_NETWORK_ACL_PRIVILEGES USING (ACL, ACLID)
+UNION ALL
+SELECT PRINCIPAL, HOST, NULL lower_port, NULL upper_port, acl, 'resolve' AS PRIVILEGE,
+
+DECODE(DBMS_NETWORK_ACL_ADMIN.CHECK_PRIVILEGE_ACLID(aclid, PRINCIPAL, 'resolve'), 1,'GRANTED', 0,'DENIED', NULL) PRIVILEGE_STATUS
+FROM DBA_NETWORK_ACLS
+JOIN DBA_NETWORK_ACL_PRIVILEGES USING (ACL, ACLID)
+
+
+DECLARE
+l_principal VARCHAR2(20) := 'APEX_230100';
+BEGIN
+DBMS_NETWORK_ACL_ADMIN.append_host_ace (
+host => 'oracle-base.com',
+lower_port => 8080,
+upper_port => 8080,
+ace => xs$ace_type(privilege_list => xs$name_list('http'),
+principal_name => l_principal,
+principal_type => xs_acl.ptype_db));
+END;
+
+
 ## Installation
 git clone https://github.com/<your-username>/oracle-apex-serial-weight-integration.git
 Open the solution in Visual Studio.
