@@ -97,6 +97,31 @@ principal_name => l_principal,
 principal_type => xs_acl.ptype_db));
 END;
 
+## after creating acl create producedure and called in oracle apex or forms to get automatic weight
+
+CREATE OR REPLACE PROCEDURE Get_serial_data(barcode_no IN VARCHAR2,terminal in varchar2) IS
+req       UTL_HTTP.req;
+  resp      UTL_HTTP.resp;
+  url       VARCHAR2(200);
+  response_text   VARCHAR2(32000);
+BEGIN
+ url := 'http://ipaddress:port/';
+  req := UTL_HTTP.begin_request(url, 'POST', 'HTTP/1.1');
+  UTL_HTTP.set_header(req, 'Content-Type', 'application/x-www-form-urlencoded');
+  UTL_HTTP.write_text(req,barcode_no);
+  resp := UTL_HTTP.get_response(req);
+  LOOP
+    UTL_HTTP.read_text(resp, response_text);
+    DBMS_OUTPUT.put_line(response_text);
+  END LOOP;
+ UTL_HTTP.end_response(resp);
+EXCEPTION
+  WHEN UTL_HTTP.end_of_body THEN
+    UTL_HTTP.end_response(resp);
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.put_line('Error: ' || SQLERRM);
+END;
+
 
 ## Installation
 git clone https://github.com/<your-username>/oracle-apex-serial-weight-integration.git
